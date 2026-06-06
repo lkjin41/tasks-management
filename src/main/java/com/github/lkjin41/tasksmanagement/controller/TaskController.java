@@ -4,7 +4,7 @@ import com.github.lkjin41.tasksmanagement.dto.task.TaskCreateDto;
 import com.github.lkjin41.tasksmanagement.dto.task.TaskUpdateDto;
 import com.github.lkjin41.tasksmanagement.entity.task.Task;
 import com.github.lkjin41.tasksmanagement.service.TaskService;
-import org.apache.coyote.Response;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -63,10 +63,13 @@ public class TaskController {
         } catch (NoSuchElementException e) {
             log.warn("update: couldn't find a task with id={}", taskToUpdate.getId());
             return ResponseEntity.status(404).build();
+        } catch (BadRequestException e) {
+            log.warn("update: deadline cant be before create date");
+            return ResponseEntity.status(400).build();
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(
             @PathVariable Long id
     ) {

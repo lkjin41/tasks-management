@@ -12,7 +12,6 @@ public class TaskUpdateDto {
     private Long creatorId;
     private Long assignedUserId;
     private TaskStatus status;
-    private LocalDateTime createDateTime;
     private LocalDateTime deadlineTime;
     private TaskPriority priority;
 }

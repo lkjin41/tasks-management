@@ -10,7 +10,5 @@ import java.time.LocalDateTime;
 public class TaskCreateDto {
     private Long creatorId;
     private Long assignedUserId;
-    private LocalDateTime createDateTime;
-    private LocalDateTime deadlineTime;
     private TaskPriority priority;
 }
