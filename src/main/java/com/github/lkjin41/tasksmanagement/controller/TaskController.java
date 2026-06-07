@@ -2,7 +2,7 @@ package com.github.lkjin41.tasksmanagement.controller;
 
 import com.github.lkjin41.tasksmanagement.dto.task.TaskCreateDto;
 import com.github.lkjin41.tasksmanagement.dto.task.TaskUpdateDto;
-import com.github.lkjin41.tasksmanagement.entity.task.Task;
+import com.github.lkjin41.tasksmanagement.domain.task.Task;
 import com.github.lkjin41.tasksmanagement.service.TaskService;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
@@ -25,6 +25,24 @@ public class TaskController {
         this.taskService = taskService;
     }
 
+    @PostMapping("/{id}/start")
+    public ResponseEntity<Void> transferTaskStatus(
+            @PathVariable Long id
+    ) {
+        log.info("transferTaskStatus method was called with id={}", id);
+        try {
+            taskService.transferTaskStatus(id);
+            return ResponseEntity.ok().build();
+        } catch (NoSuchElementException e) {
+            log.warn("transferTaskStatus: couldn't find task with provided id={}", id);
+            return ResponseEntity.status(404).build();
+        } catch (IllegalStateException e) {
+            log.warn("transferTaskStatus: {}", e.getMessage());
+            return ResponseEntity.status(409).build();
+        }
+
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(
             @PathVariable Long id
@@ -40,13 +58,13 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createTask(
+    public ResponseEntity<Task> createTask(
             @RequestBody TaskCreateDto taskToCreate
     ) {
         log.info("createTask method was called");
         try {
-            taskService.createTask(taskToCreate);
-            return ResponseEntity.created(URI.create("")).build();
+            Task savedTask = taskService.createTask(taskToCreate);
+            return ResponseEntity.ok().body(savedTask);
         } catch (IllegalArgumentException e) {
             log.warn("create: couldn't create a task with illegal arg");
             return ResponseEntity.badRequest().build();

@@ -1,7 +1,7 @@
 package com.github.lkjin41.tasksmanagement.dto.task;
 
-import com.github.lkjin41.tasksmanagement.entity.task.TaskPriority;
-import com.github.lkjin41.tasksmanagement.entity.task.TaskStatus;
+import com.github.lkjin41.tasksmanagement.domain.task.TaskPriority;
+import com.github.lkjin41.tasksmanagement.domain.task.TaskStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;

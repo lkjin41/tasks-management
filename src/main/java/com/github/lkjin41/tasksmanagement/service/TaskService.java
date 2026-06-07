@@ -1,9 +1,12 @@
 package com.github.lkjin41.tasksmanagement.service;
+
 import com.github.lkjin41.tasksmanagement.dto.task.TaskCreateDto;
 import com.github.lkjin41.tasksmanagement.dto.task.TaskUpdateDto;
-import com.github.lkjin41.tasksmanagement.entity.task.Task;
-import com.github.lkjin41.tasksmanagement.entity.task.TaskStatus;
+import com.github.lkjin41.tasksmanagement.domain.task.Task;
+import com.github.lkjin41.tasksmanagement.domain.task.TaskStatus;
+import com.github.lkjin41.tasksmanagement.entity.task.TaskEntity;
 import com.github.lkjin41.tasksmanagement.exception.TaskAlreadyCompletedException;
+import com.github.lkjin41.tasksmanagement.repository.TaskRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
@@ -13,55 +16,54 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class TaskService {
-    private final Map<Long, Task> tasksStorage;
+    // private final Map<Long, Task> tasksStorage;
+    private final TaskRepository taskRepository;
     private final AtomicLong counterId;
 
-    public TaskService() {
-        this.tasksStorage = new HashMap<>();
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
         this.counterId = new AtomicLong();
     }
 
     public Task getTaskById(Long id) throws NoSuchElementException {
-        if (!tasksStorage.containsKey(id)) {
-            throw new NoSuchElementException("couldn't find task by id = " + id);
-        }
-        return tasksStorage.get(id);
+
+        TaskEntity taskFromDb = taskRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("couldn't find task by id = " + id));
+
+        return toDomainTask(taskFromDb);
     }
 
     public List<Task> getAllTasks() {
-        return tasksStorage.values().stream().toList();
+        return taskRepository.findAll().stream().map(this::toDomainTask).toList();
     }
 
     public void deleteTask(Long id) {
-        if (!tasksStorage.containsKey(id)) {
+        if (!taskRepository.existsById(id)) {
             throw new NoSuchElementException("couldn't find task by id = " + id);
         }
-        tasksStorage.remove(id);
+        taskRepository.deleteById(id);
     }
 
-    public void createTask(TaskCreateDto taskToCreate) throws IllegalArgumentException {
-        tasksStorage.put(counterId.get(), new Task(
-                counterId.get(),
-                taskToCreate.getCreatorId(),
-                taskToCreate.getAssignedUserId(),
-                TaskStatus.CREATED,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(5),
-                taskToCreate.getPriority()
-        ));
-        counterId.incrementAndGet();
+    public Task createTask(TaskCreateDto taskToCreate) throws IllegalArgumentException {
+        TaskEntity saved = taskRepository.save(
+                new TaskEntity(
+                        taskToCreate.getPriority(),
+                        LocalDateTime.now().plusDays(5),
+                        LocalDateTime.now(),
+                        TaskStatus.CREATED,
+                        taskToCreate.getAssignedUserId(),
+                        taskToCreate.getCreatorId(),
+                        null
+                ));
+        return toDomainTask(saved);
     }
 
-    public Task updateTask(TaskUpdateDto taskToUpdate) throws BadRequestException{
+    public Task updateTask(TaskUpdateDto taskToUpdate) throws BadRequestException {
         Long taskId = taskToUpdate.getId();
 
-        Task task = tasksStorage.get(taskId);
-
-        if (task == null) {
-            throw new NoSuchElementException(
-                    "Couldn't find task by id = " + taskId
-            );
-        }
+        TaskEntity task = taskRepository.findById(taskId).orElseThrow(() -> new NoSuchElementException(
+                "Couldn't find task by id = " + taskId
+        ));
 
         if (task.getStatus() == TaskStatus.DONE) {
             throw new TaskAlreadyCompletedException();
@@ -77,7 +79,45 @@ public class TaskService {
         task.setPriority(taskToUpdate.getPriority());
         task.setDeadlineTime(taskToUpdate.getDeadlineTime());
 
-        return task;
+        return toDomainTask(task);
+    }
+
+    private Task toDomainTask(
+            TaskEntity taskFromDb
+    ) {
+        return new Task(
+                taskFromDb.getId(),
+                taskFromDb.getCreatorId(),
+                taskFromDb.getAssignedUserId(),
+                taskFromDb.getStatus(),
+                taskFromDb.getCreateDateTime(),
+                taskFromDb.getDeadlineTime(),
+                taskFromDb.getPriority()
+        );
+    }
+
+    public void transferTaskStatus(Long id) {
+        TaskEntity task = taskRepository.findById(id).orElseThrow(() -> new NoSuchElementException(
+                "Couldn't find task by id = " + id
+        ));
+
+        Long AssignedUserId = task.getAssignedUserId();
+
+        if (AssignedUserId == null) {
+            throw new IllegalStateException("assignedUserId is not set for task id = " + id);
+        }
+
+        long countOfAssignedTasks = taskRepository
+                .countByAssignedUserIdAndStatus(AssignedUserId, TaskStatus.IN_PROGRESS);
+
+        if (countOfAssignedTasks >= 5) {
+            throw new IllegalStateException("User already has maximum number of active tasks (IN_PROGRESS)");
+        }
+
+        task.setStatus(TaskStatus.IN_PROGRESS);
+        taskRepository.save(task);
+
+
     }
 }
 
