@@ -16,13 +16,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class TaskService {
-    // private final Map<Long, Task> tasksStorage;
+
     private final TaskRepository taskRepository;
-    private final AtomicLong counterId;
 
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
-        this.counterId = new AtomicLong();
     }
 
     public Task getTaskById(Long id) throws NoSuchElementException {
@@ -114,8 +112,7 @@ public class TaskService {
             throw new IllegalStateException("User already has maximum number of active tasks (IN_PROGRESS)");
         }
 
-        task.setStatus(TaskStatus.IN_PROGRESS);
-        taskRepository.save(task);
+        taskRepository.transferStatus(id, TaskStatus.IN_PROGRESS);
 
 
     }
