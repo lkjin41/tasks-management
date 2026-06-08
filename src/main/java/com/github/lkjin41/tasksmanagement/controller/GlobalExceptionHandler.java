@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -21,7 +22,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleException(
             Exception e
     ) {
-        log.info("handle exception {}", e.getMessage());
+        log.info("handle exception: {}", e.getMessage());
 
         ErrorResponseDto errorToResponse = new ErrorResponseDto(
                 "internal server error",
@@ -38,7 +39,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleEntityNotFoundException(
             EntityNotFoundException e
     ){
-        log.info("handle EntityNotFoundException {}", e.getMessage());
+        log.info("handle EntityNotFoundException: {}", e.getMessage());
 
         ErrorResponseDto errorToResponse = new ErrorResponseDto(
                 "couldn't find task by id",
@@ -55,7 +56,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleIllegalArgumentException(
             IllegalArgumentException e
     ) {
-        log.info("handle IllegalArgumentException {}", e.getMessage());
+        log.info("handle IllegalArgumentException: {}", e.getMessage());
 
         ErrorResponseDto errorToResponse = new ErrorResponseDto(
                 "bad argument in request",
@@ -72,10 +73,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleIllegalStateException(
             IllegalStateException e
     ) {
-        log.info("handle IllegalStateException {}", e.getMessage());
+        log.info("handle IllegalStateException: {}", e.getMessage());
 
         ErrorResponseDto errorToResponse = new ErrorResponseDto(
-                "bad argument in request",
+                "bad request",
                 e.getMessage(),
                 LocalDateTime.now()
         );
@@ -85,5 +86,21 @@ public class GlobalExceptionHandler {
                 .body(errorToResponse);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e
+    ) {
+        log.info("handle MethodArgumentNotValidException: {}", e.getMessage());
+
+        ErrorResponseDto errorToResponse = new ErrorResponseDto(
+                "failed on request validation",
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorToResponse);
+    }
 
 }

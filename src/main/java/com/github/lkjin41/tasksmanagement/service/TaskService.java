@@ -73,7 +73,6 @@ public class TaskService {
 
         task.setCreatorId(taskToUpdate.getCreatorId());
         task.setAssignedUserId(taskToUpdate.getAssignedUserId());
-        task.setStatus(taskToUpdate.getStatus());
         task.setPriority(taskToUpdate.getPriority());
         task.setDeadlineTime(taskToUpdate.getDeadlineTime());
 
@@ -120,9 +119,13 @@ public class TaskService {
     }
 
     public void transferTaskStatusDone(Long id) {
-        taskRepository.findById(id).orElseThrow(
+        TaskEntity task = taskRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("couldn't find task by id = " +  id)
         );
+
+        if (task.getStatus() == TaskStatus.CREATED){
+            throw new IllegalStateException("couldn't set done status to task with created status");
+        }
 
         taskRepository.setStatusDoneAndUpdateDoneDateTime(id, TaskStatus.DONE, LocalDateTime.now());
     }

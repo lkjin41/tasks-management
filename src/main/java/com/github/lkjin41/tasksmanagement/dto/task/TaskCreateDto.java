@@ -10,7 +10,6 @@ public class TaskCreateDto {
     @NotNull
     private Long creatorId;
     @NotNull
-    @Future
     private Long assignedUserId;
     @NotNull
     private TaskPriority priority;

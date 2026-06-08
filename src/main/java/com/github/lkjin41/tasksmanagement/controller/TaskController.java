@@ -33,16 +33,17 @@ public class TaskController {
         log.info("transferTaskStatus method was called with id={}", id);
 
         taskService.transferTaskStatus(id);
+        log.info("successfully set in_progress status to task with id={}", id);
         return ResponseEntity.ok().build();
-
-
     }
 
     @PostMapping("/{id}/complete")
     public ResponseEntity<Void> transferTaskStatusDone(
             @PathVariable Long id
     ) {
+        log.info("transferTaskStatusDone method was called with task id={}", id);
         taskService.transferTaskStatusDone(id);
+        log.info("successfully set done status to task with id={}", id);
         return ResponseEntity.ok().build();
     }
 
@@ -67,6 +68,7 @@ public class TaskController {
         log.info("createTask method was called");
 
         Task savedTask = taskService.createTask(taskToCreate);
+        log.info("successfully created task {}", savedTask);
         return ResponseEntity.ok().body(savedTask);
     }
 
