@@ -56,7 +56,7 @@ public class TaskService {
         return toDomainTask(saved);
     }
 
-    public Task updateTask(TaskUpdateDto taskToUpdate) throws BadRequestException {
+    public Task updateTask(TaskUpdateDto taskToUpdate) throws IllegalStateException {
         Long taskId = taskToUpdate.getId();
 
         TaskEntity task = taskRepository.findById(taskId).orElseThrow(() -> new NoSuchElementException(
@@ -68,7 +68,7 @@ public class TaskService {
         }
 
         if (taskToUpdate.getDeadlineTime().isBefore(task.getCreateDateTime())) {
-            throw new BadRequestException("deadline cant be before create date");
+            throw new IllegalStateException("deadline cant be before create date");
         }
 
         task.setCreatorId(taskToUpdate.getCreatorId());
@@ -90,7 +90,9 @@ public class TaskService {
                 taskFromDb.getStatus(),
                 taskFromDb.getCreateDateTime(),
                 taskFromDb.getDeadlineTime(),
+                taskFromDb.getDoneDateTime(),
                 taskFromDb.getPriority()
+
         );
     }
 
@@ -115,6 +117,14 @@ public class TaskService {
         taskRepository.transferStatus(id, TaskStatus.IN_PROGRESS);
 
 
+    }
+
+    public void transferTaskStatusDone(Long id) {
+        taskRepository.findById(id).orElseThrow(
+                () -> new NoSuchElementException("couldn't find task by id = " +  id)
+        );
+
+        taskRepository.setStatusDoneAndUpdateDoneDateTime(id, TaskStatus.DONE, LocalDateTime.now());
     }
 }
 

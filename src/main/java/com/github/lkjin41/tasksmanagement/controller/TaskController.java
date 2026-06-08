@@ -4,6 +4,7 @@ import com.github.lkjin41.tasksmanagement.dto.task.TaskCreateDto;
 import com.github.lkjin41.tasksmanagement.dto.task.TaskUpdateDto;
 import com.github.lkjin41.tasksmanagement.domain.task.Task;
 import com.github.lkjin41.tasksmanagement.service.TaskService;
+import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,21 +27,23 @@ public class TaskController {
     }
 
     @PostMapping("/{id}/start")
-    public ResponseEntity<Void> transferTaskStatus(
+    public ResponseEntity<Void> transferTaskStatusInProgress(
             @PathVariable Long id
     ) {
         log.info("transferTaskStatus method was called with id={}", id);
-        try {
-            taskService.transferTaskStatus(id);
-            return ResponseEntity.ok().build();
-        } catch (NoSuchElementException e) {
-            log.warn("transferTaskStatus: couldn't find task with provided id={}", id);
-            return ResponseEntity.status(404).build();
-        } catch (IllegalStateException e) {
-            log.warn("transferTaskStatus: {}", e.getMessage());
-            return ResponseEntity.status(409).build();
-        }
 
+        taskService.transferTaskStatus(id);
+        return ResponseEntity.ok().build();
+
+
+    }
+
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<Void> transferTaskStatusDone(
+            @PathVariable Long id
+    ) {
+        taskService.transferTaskStatusDone(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
@@ -59,32 +62,22 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<Task> createTask(
-            @RequestBody TaskCreateDto taskToCreate
+            @RequestBody @Valid TaskCreateDto taskToCreate
     ) {
         log.info("createTask method was called");
-        try {
-            Task savedTask = taskService.createTask(taskToCreate);
-            return ResponseEntity.ok().body(savedTask);
-        } catch (IllegalArgumentException e) {
-            log.warn("create: couldn't create a task with illegal arg");
-            return ResponseEntity.badRequest().build();
-        }
+
+        Task savedTask = taskService.createTask(taskToCreate);
+        return ResponseEntity.ok().body(savedTask);
     }
 
     @PutMapping
     public ResponseEntity<Task> updateTask(
-            @RequestBody TaskUpdateDto taskToUpdate
-            ) {
+            @RequestBody @Valid TaskUpdateDto taskToUpdate
+    ) {
         log.info("updateTask method was called with id={}", taskToUpdate.getId());
-        try {
-            return ResponseEntity.ok().body(taskService.updateTask(taskToUpdate));
-        } catch (NoSuchElementException e) {
-            log.warn("update: couldn't find a task with id={}", taskToUpdate.getId());
-            return ResponseEntity.status(404).build();
-        } catch (BadRequestException e) {
-            log.warn("update: deadline cant be before create date");
-            return ResponseEntity.status(400).build();
-        }
+
+        return ResponseEntity.ok().body(taskService.updateTask(taskToUpdate));
+
     }
 
     @DeleteMapping("/{id}")
@@ -92,14 +85,11 @@ public class TaskController {
             @PathVariable Long id
     ) {
         log.info("deleteTask method was called with id={}", id);
-        try {
-            taskService.deleteTask(id);
-            log.info("successfully delete a task with id={}", id);
-            return ResponseEntity.ok().build();
-        } catch (NoSuchElementException e) {
-            log.info("delete: couldn't find a task with id={}", id);
-            return ResponseEntity.status(404).build();
-        }
+
+        taskService.deleteTask(id);
+        log.info("successfully delete a task with id={}", id);
+        return ResponseEntity.ok().build();
+
 
     }
 }

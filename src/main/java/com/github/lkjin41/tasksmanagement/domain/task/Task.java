@@ -14,5 +14,6 @@ public class Task {
     private TaskStatus status;
     private LocalDateTime createDateTime;
     private LocalDateTime deadlineTime;
+    private LocalDateTime doneDateTime;
     private TaskPriority priority;
 }

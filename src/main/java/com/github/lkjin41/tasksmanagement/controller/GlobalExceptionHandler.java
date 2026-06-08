@@ -19,13 +19,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleException(
-            Exception exception
+            Exception e
     ) {
-        log.info("handle exception");
+        log.info("handle exception {}", e.getMessage());
 
         ErrorResponseDto errorToResponse = new ErrorResponseDto(
                 "internal server error",
-                exception.getMessage(),
+                e.getMessage(),
                 LocalDateTime.now()
         );
 
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleEntityNotFoundException(
             EntityNotFoundException e
     ){
-        log.info("handle EntityNotFoundException");
+        log.info("handle EntityNotFoundException {}", e.getMessage());
 
         ErrorResponseDto errorToResponse = new ErrorResponseDto(
                 "couldn't find task by id",
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleIllegalArgumentException(
             IllegalArgumentException e
     ) {
-        log.info("handle IllegalArgumentException");
+        log.info("handle IllegalArgumentException {}", e.getMessage());
 
         ErrorResponseDto errorToResponse = new ErrorResponseDto(
                 "bad argument in request",
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleIllegalStateException(
             IllegalStateException e
     ) {
-        log.info("handle IllegalStateException");
+        log.info("handle IllegalStateException {}", e.getMessage());
 
         ErrorResponseDto errorToResponse = new ErrorResponseDto(
                 "bad argument in request",
