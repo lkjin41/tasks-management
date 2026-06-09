@@ -1,7 +1,6 @@
-package com.github.lkjin41.tasksmanagement.dto.task;
+package com.github.lkjin41.tasksmanagement.tasks.controller.dto.task;
 
-import com.github.lkjin41.tasksmanagement.domain.task.TaskPriority;
-import jakarta.validation.constraints.Future;
+import com.github.lkjin41.tasksmanagement.tasks.task.TaskPriority;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

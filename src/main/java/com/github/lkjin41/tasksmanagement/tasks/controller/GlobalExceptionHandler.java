@@ -1,6 +1,6 @@
-package com.github.lkjin41.tasksmanagement.controller;
+package com.github.lkjin41.tasksmanagement.tasks.controller;
 
-import com.github.lkjin41.tasksmanagement.dto.error.ErrorResponseDto;
+import com.github.lkjin41.tasksmanagement.tasks.controller.dto.error.ErrorResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

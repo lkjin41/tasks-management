@@ -1,26 +1,27 @@
-package com.github.lkjin41.tasksmanagement.service;
+package com.github.lkjin41.tasksmanagement.tasks.service;
 
-import com.github.lkjin41.tasksmanagement.dto.task.TaskCreateDto;
-import com.github.lkjin41.tasksmanagement.dto.task.TaskUpdateDto;
-import com.github.lkjin41.tasksmanagement.domain.task.Task;
-import com.github.lkjin41.tasksmanagement.domain.task.TaskStatus;
-import com.github.lkjin41.tasksmanagement.entity.task.TaskEntity;
-import com.github.lkjin41.tasksmanagement.exception.TaskAlreadyCompletedException;
-import com.github.lkjin41.tasksmanagement.repository.TaskRepository;
-import org.apache.coyote.BadRequestException;
+import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskCreateDto;
+import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskUpdateDto;
+import com.github.lkjin41.tasksmanagement.tasks.task.Task;
+import com.github.lkjin41.tasksmanagement.tasks.task.TaskMapper;
+import com.github.lkjin41.tasksmanagement.tasks.task.TaskStatus;
+import com.github.lkjin41.tasksmanagement.tasks.task.TaskEntity;
+import com.github.lkjin41.tasksmanagement.tasks.exception.TaskAlreadyCompletedException;
+import com.github.lkjin41.tasksmanagement.tasks.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
+        this.taskMapper = taskMapper;
     }
 
     public Task getTaskById(Long id) throws NoSuchElementException {
@@ -28,11 +29,11 @@ public class TaskService {
         TaskEntity taskFromDb = taskRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("couldn't find task by id = " + id));
 
-        return toDomainTask(taskFromDb);
+        return taskMapper.toTask(taskFromDb);
     }
 
     public List<Task> getAllTasks() {
-        return taskRepository.findAll().stream().map(this::toDomainTask).toList();
+        return taskRepository.findAll().stream().map(taskMapper::toTask).toList();
     }
 
     public void deleteTask(Long id) {
@@ -53,7 +54,7 @@ public class TaskService {
                         taskToCreate.getCreatorId(),
                         null
                 ));
-        return toDomainTask(saved);
+        return taskMapper.toTask(saved);
     }
 
     public Task updateTask(TaskUpdateDto taskToUpdate) throws IllegalStateException {
@@ -76,24 +77,9 @@ public class TaskService {
         task.setPriority(taskToUpdate.getPriority());
         task.setDeadlineTime(taskToUpdate.getDeadlineTime());
 
-        return toDomainTask(task);
+        return taskMapper.toTask(task);
     }
 
-    private Task toDomainTask(
-            TaskEntity taskFromDb
-    ) {
-        return new Task(
-                taskFromDb.getId(),
-                taskFromDb.getCreatorId(),
-                taskFromDb.getAssignedUserId(),
-                taskFromDb.getStatus(),
-                taskFromDb.getCreateDateTime(),
-                taskFromDb.getDeadlineTime(),
-                taskFromDb.getDoneDateTime(),
-                taskFromDb.getPriority()
-
-        );
-    }
 
     public void transferTaskStatus(Long id) {
         TaskEntity task = taskRepository.findById(id).orElseThrow(() -> new NoSuchElementException(

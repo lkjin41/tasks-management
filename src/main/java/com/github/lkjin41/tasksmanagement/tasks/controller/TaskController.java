@@ -1,19 +1,16 @@
-package com.github.lkjin41.tasksmanagement.controller;
+package com.github.lkjin41.tasksmanagement.tasks.controller;
 
-import com.github.lkjin41.tasksmanagement.dto.task.TaskCreateDto;
-import com.github.lkjin41.tasksmanagement.dto.task.TaskUpdateDto;
-import com.github.lkjin41.tasksmanagement.domain.task.Task;
-import com.github.lkjin41.tasksmanagement.service.TaskService;
+import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskCreateDto;
+import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskUpdateDto;
+import com.github.lkjin41.tasksmanagement.tasks.task.Task;
+import com.github.lkjin41.tasksmanagement.tasks.service.TaskService;
 import jakarta.validation.Valid;
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 
 @RestController

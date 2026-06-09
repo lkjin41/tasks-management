@@ -1,4 +1,4 @@
-package com.github.lkjin41.tasksmanagement.domain.task;
+package com.github.lkjin41.tasksmanagement.tasks.task;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

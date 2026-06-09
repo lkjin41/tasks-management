@@ -1,9 +1,6 @@
-package com.github.lkjin41.tasksmanagement.entity.task;
+package com.github.lkjin41.tasksmanagement.tasks.task;
 
-import com.github.lkjin41.tasksmanagement.domain.task.TaskPriority;
-import com.github.lkjin41.tasksmanagement.domain.task.TaskStatus;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

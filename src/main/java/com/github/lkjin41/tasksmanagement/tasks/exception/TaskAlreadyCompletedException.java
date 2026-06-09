@@ -1,4 +1,4 @@
-package com.github.lkjin41.tasksmanagement.exception;
+package com.github.lkjin41.tasksmanagement.tasks.exception;
 
 
 public class TaskAlreadyCompletedException extends RuntimeException {

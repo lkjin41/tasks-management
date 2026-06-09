@@ -1,4 +1,4 @@
-package com.github.lkjin41.tasksmanagement.dto.error;
+package com.github.lkjin41.tasksmanagement.tasks.controller.dto.error;
 
 import java.time.LocalDateTime;
 
