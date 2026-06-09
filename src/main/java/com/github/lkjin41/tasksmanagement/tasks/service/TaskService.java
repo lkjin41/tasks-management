@@ -36,9 +36,14 @@ public class TaskService {
 
     public List<Task> getAllTasks(TaskSearchFilter taskSearchFilter) {
 
+        int pageSize = taskSearchFilter.pageSize() != null
+                ? taskSearchFilter.pageSize() : 10;
+        int pageNumber = taskSearchFilter.pageNum() != null
+                ? taskSearchFilter.pageNum() : 0;
+
         var pageable = Pageable
-                .ofSize(taskSearchFilter.pageSize())
-                .withPage(taskSearchFilter.pageNum());
+                .ofSize(pageSize)
+                .withPage(pageNumber);
 
         return taskRepository
                 .searchAllByFilter(

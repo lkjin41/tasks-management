@@ -8,7 +8,7 @@ public record TaskSearchFilter(
         Long assignedUserId,
         TaskStatus status,
         TaskPriority priority,
-        int pageSize,
-        int pageNum
+        Integer pageSize,
+        Integer pageNum
 ) {
 }
