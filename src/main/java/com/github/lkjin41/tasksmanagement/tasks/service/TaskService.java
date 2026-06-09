@@ -1,6 +1,7 @@
 package com.github.lkjin41.tasksmanagement.tasks.service;
 
 import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskCreateDto;
+import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskSearchFilter;
 import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskUpdateDto;
 import com.github.lkjin41.tasksmanagement.tasks.task.Task;
 import com.github.lkjin41.tasksmanagement.tasks.task.TaskMapper;
@@ -8,6 +9,7 @@ import com.github.lkjin41.tasksmanagement.tasks.task.TaskStatus;
 import com.github.lkjin41.tasksmanagement.tasks.task.TaskEntity;
 import com.github.lkjin41.tasksmanagement.tasks.exception.TaskAlreadyCompletedException;
 import com.github.lkjin41.tasksmanagement.tasks.repository.TaskRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,8 +34,23 @@ public class TaskService {
         return taskMapper.toTask(taskFromDb);
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll().stream().map(taskMapper::toTask).toList();
+    public List<Task> getAllTasks(TaskSearchFilter taskSearchFilter) {
+
+        var pageable = Pageable
+                .ofSize(taskSearchFilter.pageSize())
+                .withPage(taskSearchFilter.pageNum());
+
+        return taskRepository
+                .searchAllByFilter(
+                        taskSearchFilter.creatorId(),
+                        taskSearchFilter.assignedUserId(),
+                        taskSearchFilter.status(),
+                        taskSearchFilter.priority(),
+                        pageable
+                )
+                .stream()
+                .map(taskMapper::toTask)
+                .toList();
     }
 
     public void deleteTask(Long id) {

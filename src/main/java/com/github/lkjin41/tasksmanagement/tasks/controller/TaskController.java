@@ -1,9 +1,12 @@
 package com.github.lkjin41.tasksmanagement.tasks.controller;
 
 import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskCreateDto;
+import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskSearchFilter;
 import com.github.lkjin41.tasksmanagement.tasks.controller.dto.task.TaskUpdateDto;
 import com.github.lkjin41.tasksmanagement.tasks.task.Task;
 import com.github.lkjin41.tasksmanagement.tasks.service.TaskService;
+import com.github.lkjin41.tasksmanagement.tasks.task.TaskPriority;
+import com.github.lkjin41.tasksmanagement.tasks.task.TaskStatus;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +25,7 @@ public class TaskController {
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
+
 
     @PostMapping("/{id}/start")
     public ResponseEntity<Void> transferTaskStatusInProgress(
@@ -53,9 +57,26 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
+    public ResponseEntity<List<Task>> getAllTasks(
+            @RequestParam(name = "creatorId", required = false) Long creatorId,
+            @RequestParam(name = "assignedUserId", required = false) Long assignedUserId,
+            @RequestParam(name = "status", required = false) TaskStatus status,
+            @RequestParam(name = "priority", required = false) TaskPriority priority,
+            @RequestParam(name = "pageSize", required = false) int pageSize,
+            @RequestParam(name = "pageNum", required = false) int pageNum
+    ) {
         log.info("getAllTasks method was called");
-        return ResponseEntity.ok().body(taskService.getAllTasks());
+
+        TaskSearchFilter taskSearchFilter = new TaskSearchFilter(
+                creatorId,
+                assignedUserId,
+                status,
+                priority,
+                pageSize,
+                pageNum
+        );
+
+        return ResponseEntity.ok().body(taskService.getAllTasks(taskSearchFilter));
     }
 
     @PostMapping
