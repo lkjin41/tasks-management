@@ -1,0 +1,17 @@
+version: "3.8"
+
+volumes:
+  pg_tasks:
+
+services:
+  tasks_db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - pg_tasks:/var/lib/postgres/data
+    ports:
+      - "5433:5432"
